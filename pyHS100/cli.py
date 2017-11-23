@@ -2,15 +2,17 @@ import sys
 import click
 import logging
 from click_datetime import Datetime
-from pprint import pformat
+from pprint import pformat as pf
 
 if sys.version_info < (3, 4):
     print("To use this script you need python 3.4 or newer! got %s" %
           sys.version_info)
     sys.exit(1)
 
-from pyHS100 import (SmartDevice, SmartPlug, SmartBulb,
-                     TPLinkSmartHomeProtocol)  # noqa: E402
+from pyHS100 import (SmartDevice,
+                     SmartPlug,
+                     SmartBulb,
+                     Discover)  # noqa: E402
 
 pass_dev = click.make_pass_decorator(SmartDevice)
 
@@ -19,8 +21,9 @@ pass_dev = click.make_pass_decorator(SmartDevice)
 @click.option('--ip', envvar="PYHS100_IP", required=False)
 @click.option('--debug/--normal', default=False)
 @click.option('--bulb', default=False, is_flag=True)
+@click.option('--plug', default=False, is_flag=True)
 @click.pass_context
-def cli(ctx, ip, debug, bulb):
+def cli(ctx, ip, debug, bulb, plug):
     """A cli tool for controlling TP-Link smart home plugs."""
     if debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -31,26 +34,46 @@ def cli(ctx, ip, debug, bulb):
         return
 
     if ip is None:
-        click.echo("You must specify the IP!")
-        sys.exit(-1)
+        click.echo("No IP given, trying discovery..")
+        ctx.invoke(discover)
+        return
 
-    if bulb:
-        dev = SmartBulb(ip)
-    else:
-        dev = SmartPlug(ip)
-    ctx.obj = dev
+    elif ip is not None:
+        if not bulb and not plug:
+            click.echo("No --bulb nor --plug given, discovering..")
+            devs = ctx.invoke(discover, discover_only=True)
+            for discovered_ip, discovered_dev in devs:
+                if discovered_ip == ip:
+                    dev = discovered_dev
+                    break
+        elif bulb:
+            dev = SmartBulb(ip)
+        elif plug:
+            dev = SmartPlug(ip)
+        else:
+            click.echo("Unable to detect type, use --bulb or --plug!")
+            return
+        ctx.obj = dev
 
     if ctx.invoked_subcommand is None:
         ctx.invoke(state)
 
 
 @cli.command()
-@click.option('--timeout', default=5, required=False)
-def discover(timeout):
+@click.option('--timeout', default=3, required=False)
+@click.option('--discover-only', default=False)
+@click.pass_context
+def discover(ctx, timeout, discover_only):
     """Discover devices in the network."""
     click.echo("Discovering devices for %s seconds" % timeout)
-    for dev in TPLinkSmartHomeProtocol.discover(timeout=timeout):
-        print("Found device: %s" % pformat(dev))
+    found_devs = Discover.discover(timeout=timeout).items()
+    if not discover_only:
+        for ip, dev in found_devs:
+            ctx.obj = dev
+            ctx.invoke(state)
+            print()
+
+    return found_devs
 
 
 @cli.command()
@@ -58,7 +81,7 @@ def discover(timeout):
 def sysinfo(dev):
     """Print out full system information."""
     click.echo(click.style("== System info ==", bold=True))
-    click.echo(pformat(dev.sys_info))
+    click.echo(pf(dev.sys_info))
 
 
 @cli.command()
@@ -71,6 +94,7 @@ def state(ctx, dev):
 
     click.echo(click.style("Device state: %s" % "ON" if dev.is_on else "OFF",
                            fg="green" if dev.is_on else "red"))
+    click.echo("IP address: %s" % dev.ip_address)
     for k, v in dev.state_information.items():
         click.echo("%s: %s" % (k, v))
     click.echo(click.style("== Generic information ==", bold=True))
@@ -112,33 +136,36 @@ def emeter(dev, year, month, erase):
 
 
 @cli.command()
-@click.argument("brightness", type=click.IntRange(0, 100), default=None)
+@click.argument("brightness", type=click.IntRange(0, 100), default=None,
+                required=False)
 @pass_dev
-def brightness(dev, value):
+def brightness(dev, brightness):
     """Get or set brightness. (Bulb Only)"""
-    if value is None:
+    if brightness is None:
         click.echo("Brightness: %s" % dev.brightness)
     else:
-        click.echo("Setting brightness to %s" % value)
-        dev.brightness = value
+        click.echo("Setting brightness to %s" % brightness)
+        dev.brightness = brightness
 
 
 @cli.command()
-@click.argument("temperature", type=click.IntRange(2700, 6500), default=None)
+@click.argument("temperature", type=click.IntRange(2700, 6500), default=None,
+                required=False)
 @pass_dev
-def temperature(dev, value):
+def temperature(dev, temperature):
     """Get or set color temperature. (Bulb only)"""
-    if value is None:
+    if temperature is None:
         click.echo("Color temperature: %s" % dev.color_temp)
     else:
-        click.echo("Setting color temperature to %s" % value)
-        dev.color_temp = value
+        click.echo("Setting color temperature to %s" % temperature)
+        dev.color_temp = temperature
 
 
 @cli.command()
-@click.argument("h", type=click.IntRange(0, 255), default=None)
-@click.argument("s", type=click.IntRange(0, 255), default=None)
-@click.argument("v", type=click.IntRange(0, 255), default=None)
+@click.argument("h", type=click.IntRange(0, 360), default=None)
+@click.argument("s", type=click.IntRange(0, 100), default=None)
+@click.argument("v", type=click.IntRange(0, 100), default=None)
+@pass_dev
 def hsv(dev, h, s, v):
     """Get or set color in HSV. (Bulb only)"""
     if h is None or s is None or v is None:
@@ -158,6 +185,13 @@ def led(dev, state):
         dev.led = state
     else:
         click.echo("LED state: %s" % dev.led)
+
+
+@cli.command()
+@pass_dev
+def time(dev):
+    """Get the device time."""
+    click.echo(dev.time)
 
 
 @cli.command()

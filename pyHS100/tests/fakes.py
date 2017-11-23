@@ -45,11 +45,33 @@ emeter_units_support = {"get_realtime": get_realtime_units,
                         "get_monthstat": get_monthstat_units,
                         "get_daystat": get_daystat_units,}
 
+sysinfo_hs100 = {'system': {'get_sysinfo':
+                                {'active_mode': 'schedule',
+                                 'alias': 'My Smart Plug',
+                                 'dev_name': 'Wi-Fi Smart Plug',
+                                 'deviceId': '80061E93E28EEBA9FA1929D15C4678C7172A8AF2',
+                                 'feature': 'TIM',
+                                 'fwId': 'BFF24826FBC561803E49379DBE74FD71',
+                                 'hwId': '22603EA5E716DEAEA6642A30BE87AFCA',
+                                 'hw_ver': '1.0',
+                                 'icon_hash': '',
+                                 'latitude': 12.2,
+                                 'led_off': 0,
+                                 'longitude': 12.2,
+                                 'mac': '50:C7:BF:11:22:33',
+                                 'model': 'HS100(EU)',
+                                 'oemId': '812A90EB2FCF306A993FAD8748024B07',
+                                 'on_time': 255419,
+                                 'relay_state': 1,
+                                 'sw_ver': '1.0.8 Build 151101 Rel.24452',
+                                 'type': 'smartplug',
+                                 'updating': 0}}}
+
 sysinfo_hs105 = {'system': {'get_sysinfo':
                             {'sw_ver': '1.0.6 Build 160722 Rel.081616',
                              'hw_ver': '1.0', 'type': 'IOT.SMARTPLUGSWITCH',
                              'model': 'HS105(US)',
-                             'mac': '50:C7:BF:xx:xx:xx',
+                             'mac': '50:C7:BF:11:22:33',
                              'dev_name': 'Smart Wi-Fi Plug Mini',
                              'alias': 'TP-LINK_Smart Plug_CF0B',
                              'relay_state': 0,
@@ -175,6 +197,206 @@ sysinfo_lb130 = {'system': {'get_sysinfo':
                                                               'err_code': 0}},
                  'smartlife.iot.common.emeter': emeter_units_support,
 }
+
+sysinfo_lb100 = {'system': {
+    'sys_info': {
+        'emeter': {
+            'err_code': -2001,
+            'err_msg': 'Module not support'
+        },
+        'system': {
+            'get_sysinfo': {
+                'active_mode': 'none',
+                'alias': 'New Light',
+                'ctrl_protocols': {
+                    'name': 'Linkie',
+                    'version': '1.0'
+                },
+                'description': 'Smart Wi-Fi LED Bulb with Dimmable Light',
+                'dev_state': 'normal',
+                'deviceId': '8012996ED1F8DA43EFFD58B62BEC5ADE18192F88',
+                'disco_ver': '1.0',
+                'err_code': 0,
+                'heapsize': 340808,
+                'hwId': '111E35908497A05512E259BB76801E10',
+                'hw_ver': '1.0',
+                'is_color': 0,
+                'is_dimmable': 1,
+                'is_factory': False,
+                'is_variable_color_temp': 0,
+                'light_state': {
+                    'dft_on_state': {
+                        'brightness': 50,
+                        'color_temp': 2700,
+                        'hue': 0,
+                        'mode': 'normal',
+                        'saturation': 0
+                    },
+                    'on_off': 0
+                },
+                'mic_mac': '50C7BF3393F1',
+                'mic_type': 'IOT.SMARTBULB',
+                'model': 'LB100(US)',
+                'oemId': '264E4E97B2D2B086F289AC1F00B90679',
+                'preferred_state': [
+                    {
+                        'brightness': 100,
+                        'color_temp': 2700,
+                        'hue': 0,
+                        'index': 0,
+                        'saturation': 0
+                    },
+                    {
+                        'brightness': 75,
+                        'color_temp': 2700,
+                        'hue': 0,
+                        'index': 1,
+                        'saturation': 0
+                    },
+                    {
+                        'brightness': 25,
+                        'color_temp': 2700,
+                        'hue': 0,
+                        'index': 2,
+                        'saturation': 0
+                    },
+                    {
+                        'brightness': 1,
+                        'color_temp': 2700,
+                        'hue': 0,
+                        'index': 3,
+                        'saturation': 0
+                    }
+                ],
+                'rssi': -54,
+                'sw_ver': '1.2.3 Build 170123 Rel.100146'
+            }
+        }
+    }
+}}
+
+sysinfo_lb110 = {'system': {
+    'sys_info':
+        {'emeter':
+             {'err_code': -2001,
+              'err_msg': 'Module not support'},
+         'system':
+             {'get_sysinfo':
+                  {'active_mode': 'schedule',
+                   'alias': 'Downstairs Light',
+                   'ctrl_protocols':
+                       {'name': 'Linkie',
+                        'version': '1.0'},
+                   'description': 'Smart Wi-Fi LED Bulb '
+                                  'with Dimmable Light',
+                   'dev_state': 'normal',
+                   'deviceId':
+                       '80120B3D03E0B639CDF33E3CB1466490187FEF32',
+                   'disco_ver': '1.0',
+                   'err_code': 0,
+                   'heapsize': 309908,
+                   'hwId': '111E35908497A05512E259BB76801E10',
+                   'hw_ver': '1.0',
+                   'is_color': 0,
+                   'is_dimmable': 1,
+                   'is_factory': False,
+                   'is_variable_color_temp': 0,
+                   'light_state':
+                       {'dft_on_state':
+                            {'brightness': 92,
+                             'color_temp': 2700,
+                             'hue': 0,
+                             'mode': 'normal',
+                             'saturation': 0},
+                        'on_off': 0},
+                   'mic_mac': '50C7BF7BE306',
+                   'mic_type': 'IOT.SMARTBULB',
+                   'model': 'LB110(EU)',
+                   'oemId':
+                       'A68E15472071CB761E5CCFB388A1D8AE',
+                   'preferred_state': [{'brightness': 100,
+                                        'color_temp': 2700,
+                                        'hue': 0,
+                                        'index': 0,
+                                        'saturation': 0},
+                                       {'brightness': 58,
+                                        'color_temp': 2700,
+                                        'hue': 0,
+                                        'index': 1,
+                                        'saturation': 0},
+                                       {'brightness': 25,
+                                        'color_temp': 2700,
+                                        'hue': 0,
+                                        'index': 2,
+                                        'saturation': 0},
+                                       {'brightness': 1,
+                                        'color_temp': 2700,
+                                        'hue': 0,
+                                        'index': 3,
+                                        'saturation': 0}],
+                   'rssi': -61,
+                   'sw_ver': '1.5.5 Build 170623 '
+                             'Rel.090105'
+                   }
+              }
+         }
+}}
+
+sysinfo_lb120 = {'system':
+                     {'sys_info':
+                          {'system':
+                               {'get_sysinfo':
+                                    {'active_mode': 'none',
+                                     'alias': 'LB1202',
+                                     'ctrl_protocols': {'name': 'Linkie', 'version': '1.0'},
+                                     'description': 'Smart Wi-Fi LED Bulb with Tunable White Light',
+                                     'dev_state': 'normal',
+                                     'deviceId': 'foo',
+                                     'disco_ver': '1.0',
+                                     'heapsize': 329032,
+                                     'hwId': 'foo',
+                                     'hw_ver': '1.0',
+                                     'is_color': 0,
+                                     'is_dimmable': 1,
+                                     'is_factory': False,
+                                     'is_variable_color_temp': 1,
+                                     'light_state': {'dft_on_state': {'brightness': 31,
+                                                                      'color_temp': 4100,
+                                                                      'hue': 0,
+                                                                      'mode': 'normal',
+                                                                      'saturation': 0},
+                                                     'on_off': 0},
+                                     'mic_mac': '50C7BF33937C',
+                                     'mic_type': 'IOT.SMARTBULB',
+                                     'model': 'LB120(US)',
+                                     'oemId': 'foo',
+                                     'preferred_state': [{'brightness': 100,
+                                                          'color_temp': 3500,
+                                                          'hue': 0,
+                                                          'index': 0,
+                                                          'saturation': 0},
+                                                         {'brightness': 50,
+                                                          'color_temp': 6500,
+                                                          'hue': 0,
+                                                          'index': 1,
+                                                          'saturation': 0},
+                                                         {'brightness': 50,
+                                                          'color_temp': 2700,
+                                                          'hue': 0,
+                                                          'index': 2,
+                                                          'saturation': 0},
+                                                         {'brightness': 1,
+                                                          'color_temp': 2700,
+                                                          'hue': 0,
+                                                          'index': 3,
+                                                          'saturation': 0}],
+                                     'rssi': -47,
+                                     'sw_ver': '1.4.3 Build 170504 Rel.144921'}
+                                }
+                           }
+                      }
+                 }
+
 
 def error(cls, target, cmd="no-command", msg="default msg"):
     return {target: {cmd: {"err_code": -1323, "msg": msg}}}

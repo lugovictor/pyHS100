@@ -1,9 +1,12 @@
 from unittest import TestCase, skip, skipIf
 from voluptuous import Schema, Invalid, All, Range
 from functools import partial
+from typing import Any, Dict  # noqa: F401
 
 from .. import SmartBulb, SmartDeviceException
-from .fakes import FakeTransportProtocol, sysinfo_lb130
+from .fakes import (FakeTransportProtocol,
+                    sysinfo_lb100, sysinfo_lb110,
+                    sysinfo_lb120, sysinfo_lb130)
 
 BULB_IP = '192.168.250.186'
 SKIP_STATE_TESTS = False
@@ -23,6 +26,7 @@ def check_mode(x):
 
 
 class TestSmartBulb(TestCase):
+    SYSINFO = sysinfo_lb130  # type: Dict[str, Any]
     # these schemas should go to the mainlib as
     # they can be useful when adding support for new features/devices
     # as well as to check that faked devices are operating properly.
@@ -80,7 +84,7 @@ class TestSmartBulb(TestCase):
 
     def setUp(self):
         self.bulb = SmartBulb(BULB_IP,
-                              protocol=FakeTransportProtocol(sysinfo_lb130))
+                              protocol=FakeTransportProtocol(self.SYSINFO))
 
     def tearDown(self):
         self.bulb = None
@@ -91,7 +95,7 @@ class TestSmartBulb(TestCase):
 
     def test_initialize_invalid_connection(self):
         bulb = SmartBulb('127.0.0.1',
-                         protocol=FakeTransportProtocol(sysinfo_lb130,
+                         protocol=FakeTransportProtocol(self.SYSINFO,
                                                         invalid=True))
         with self.assertRaises(SmartDeviceException):
             bulb.sys_info['model']
@@ -170,7 +174,7 @@ class TestSmartBulb(TestCase):
 
     def test_current_consumption(self):
         x = self.bulb.current_consumption()
-        self.assertTrue(isinstance(x, int))
+        self.assertTrue(isinstance(x, float))
         self.assertTrue(x >= 0.0)
 
     def test_alias(self):
@@ -187,3 +191,15 @@ class TestSmartBulb(TestCase):
 
     def test_rssi(self):
         self.sysinfo_schema({'rssi': self.bulb.rssi})  # wrapping for vol
+
+
+class TestSmartBulbLB100(TestSmartBulb):
+    SYSINFO = sysinfo_lb100
+
+
+class TestSmartBulbLB110(TestSmartBulb):
+    SYSINFO = sysinfo_lb110
+
+
+class TestSmartBulbLB120(TestSmartBulb):
+    SYSINFO = sysinfo_lb120

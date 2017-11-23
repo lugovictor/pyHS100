@@ -2,6 +2,7 @@ import json
 import socket
 import struct
 import logging
+from typing import Any, Dict, Union
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,7 +25,9 @@ class TPLinkSmartHomeProtocol:
     DEFAULT_TIMEOUT = 5
 
     @staticmethod
-    def query(host, request, port=DEFAULT_PORT):
+    def query(host: str,
+              request: Union[str, Dict],
+              port: int = DEFAULT_PORT) -> Any:
         """
         Request information from a TP-Link SmartHome Device and return the
         response.
@@ -39,7 +42,7 @@ class TPLinkSmartHomeProtocol:
             request = json.dumps(request)
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(5.0)
+        sock.settimeout(TPLinkSmartHomeProtocol.DEFAULT_TIMEOUT)
         try:
             sock.connect((host, port))
 
@@ -62,12 +65,13 @@ class TPLinkSmartHomeProtocol:
         finally:
             try:
                 sock.shutdown(socket.SHUT_RDWR)
-                sock.close()
             except OSError:
                 # OSX raises OSError when shutdown() gets called on a closed
                 # socket. We ignore it here as the data has already been read
                 # into the buffer at this point.
                 pass
+            finally:
+                sock.close()
 
         response = TPLinkSmartHomeProtocol.decrypt(buffer[4:])
         _LOGGER.debug("< (%i) %s", len(response), response)
@@ -75,51 +79,7 @@ class TPLinkSmartHomeProtocol:
         return json.loads(response)
 
     @staticmethod
-    def discover(timeout=DEFAULT_TIMEOUT, port=DEFAULT_PORT):
-        """
-        Sends discovery message to 255.255.255.255:9999 in order
-        to detect available supported devices in the local network,
-        and waits for given timeout for answers from devices.
-
-        :param timeout: How long to wait for responses, defaults to 5
-        :param port: port to send broadcast messages, defaults to 9999.
-        :rtype: list[dict]
-        :return: Array of json objects {"ip", "port", "sys_info"}
-        """
-        discovery_query = {"system": {"get_sysinfo": None},
-                           "emeter": {"get_realtime": None}}
-        target = "255.255.255.255"
-
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.settimeout(timeout)
-
-        req = json.dumps(discovery_query)
-        _LOGGER.debug("Sending discovery to %s:%s", target, port)
-
-        encrypted_req = TPLinkSmartHomeProtocol.encrypt(req)
-        sock.sendto(encrypted_req[4:], (target, port))
-
-        devices = []
-        _LOGGER.debug("Waiting %s seconds for responses...", timeout)
-
-        try:
-            while True:
-                data, addr = sock.recvfrom(4096)
-                ip, port = addr
-                info = json.loads(TPLinkSmartHomeProtocol.decrypt(data))
-
-                devices.append({"ip": ip, "port": port, "sys_info": info})
-        except socket.timeout:
-            _LOGGER.debug("Got socket timeout, which is okay.")
-        except Exception as ex:
-            _LOGGER.error("Got exception %s", ex, exc_info=True)
-
-        return devices
-
-    @staticmethod
-    def encrypt(request):
+    def encrypt(request: str) -> bytearray:
         """
         Encrypt a request for a TP-Link Smart Home Device.
 
@@ -137,7 +97,7 @@ class TPLinkSmartHomeProtocol:
         return buffer
 
     @staticmethod
-    def decrypt(ciphertext):
+    def decrypt(ciphertext: bytes) -> str:
         """
         Decrypt a response of a TP-Link Smart Home Device.
 
@@ -147,9 +107,9 @@ class TPLinkSmartHomeProtocol:
         key = TPLinkSmartHomeProtocol.INITIALIZATION_VECTOR
         buffer = []
 
-        ciphertext = ciphertext.decode('latin-1')
+        ciphertext_str = ciphertext.decode('latin-1')
 
-        for char in ciphertext:
+        for char in ciphertext_str:
             plain = key ^ ord(char)
             key = ord(char)
             buffer.append(chr(plain))
